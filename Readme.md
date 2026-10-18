@@ -6,7 +6,7 @@ A collection of Claude Code skills by Vipul Chauhan.
 
 | Skill                                                                                       | How to use it                                                                                                                                                                                                       |
 | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [design-system-builder](plugins/product-toolkit/README.md) | Ask Claude to "create a design system" and give it a product brief, screenshots, a brand palette, or a mix. It confirms a direction with you, then writes tokens, light and dark themes, component specs, and a contrast report. |
+| [design-system-builder](plugins/product-toolkit/skills/design-system-builder/README.md) | Ask Claude to "create a design system" and give it a product brief, screenshots, a brand palette, or a mix. It confirms a direction with you, then writes tokens, light and dark themes, component specs, and a contrast report. |
 | [project-planner](plugins/product-toolkit/skills/project-planner/README.md)                                                 | Write a spec with `skills/project-planner/templates/spec-template.md`, then ask Claude to "plan this project" using that file. It asks about high-stakes decisions and splits the spec into phases that a coding agent builds one at a time.   |
 
 ## Installing

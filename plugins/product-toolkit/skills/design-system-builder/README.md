@@ -1,26 +1,19 @@
-# Product Toolkit Plugin
-
-The product-toolkit plugin holds skills for building new products.
-
-| Skill                  | Purpose                                                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------- |
-| `design-system-builder` | Creates a design system from a brief, screenshots, or a brand palette. Documented below.  |
-| `project-planner`       | Splits a spec into phases for a coding agent. See [its README](skills/project-planner/README.md). |
-
 # Design System Builder Skill
 
 The design system builder skill creates a new design system from scratch. You give it a product brief, inspiration screenshots, a brand palette, or a mix. It returns design tokens, light and dark themes, component specs, and a contrast report that has been checked against WCAG.
 
 The skill is for new products. It does not change the tokens of an existing codebase, and it does not build single components or one-off pages such as a landing page.
 
-## What Is in This Plugin
+## What Is in This Folder
 
-| Path                                                          | Purpose                                                                           |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `.claude-plugin/plugin.json`                                  | Plugin manifest.                                                                  |
-| `skills/design-system-builder/SKILL.md`                       | The skill itself. Defines the workflow, token rules, and deliverables.            |
-| `skills/design-system-builder/references/tokens.example.css`  | A complete example of the three token layers, both themes, and accessibility queries. It shows structure only. It is not a palette to reuse. |
-| `skills/design-system-builder/scripts/check_contrast.py`      | Contrast checker. Resolves `var()` chains and tests the standard color pairs in both themes. |
+Paths are relative to the skill folder, `skills/design-system-builder/`, inside the product-toolkit plugin.
+
+| Path                           | Purpose                                                                           |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `SKILL.md`                     | The skill itself. Defines the workflow, token rules, and deliverables.            |
+| `README.md`                    | This file.                                                                        |
+| `references/tokens.example.css` | A complete example of the three token layers, both themes, and accessibility queries. It shows structure only. It is not a palette to reuse. |
+| `scripts/check_contrast.py`    | Contrast checker. Resolves `var()` chains and tests the standard color pairs in both themes. |
 
 ## How the Skill Works
 
@@ -147,7 +140,7 @@ Other rules the skill follows:
 
 ## Running the Contrast Checker Yourself
 
-The skill runs the checker for you. You can rerun it after editing the tokens. Run it from the skill folder (`skills/design-system-builder/`), or adjust the path:
+The skill runs the checker for you. You can rerun it after editing the tokens. Run it from the skill folder, or adjust the path:
 
 ```bash
 python3 -I scripts/check_contrast.py design-system/tokens.css
@@ -191,7 +184,7 @@ Keep `references/` and `scripts/` inside the skill folder. `SKILL.md` links to b
 
 ## Customizing the Skill
 
-All paths below are inside `skills/design-system-builder/`.
+All paths below are relative to the skill folder.
 
 - Edit the defaults in section 2 of `SKILL.md` to change the accessibility target or the default themes.
 - Edit the token rules in section 4 to change naming, units, or the color space.
