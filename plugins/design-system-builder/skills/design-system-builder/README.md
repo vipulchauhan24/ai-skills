@@ -162,6 +162,17 @@ In palette mode, the skill never changes a brand color on its own. When a pairin
 
 ## Installing the Skill
 
+### From the plugin marketplace
+
+In Claude Code, add the marketplace and install the plugin:
+
+```text
+/plugin marketplace add vipulchauhan24/ai-skills
+/plugin install design-system-builder@vipul-ai-skills
+```
+
+### Manually
+
 Copy this folder into a skills directory that Claude Code reads:
 
 - Project level: `.claude/skills/design-system-builder/`

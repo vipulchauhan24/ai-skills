@@ -1,0 +1,12 @@
+{
+  "name": "design-system-builder",
+  "version": "1.0.0",
+  "description": "Builds a new design system from a brief, screenshots, or a brand palette: design tokens, light and dark themes, component specs, and a WCAG contrast report.",
+  "author": {
+    "name": "Vipul Chauhan"
+  },
+  "homepage": "https://github.com/vipulchauhan24/ai-skills",
+  "repository": "https://github.com/vipulchauhan24/ai-skills",
+  "license": "MIT",
+  "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "wcag"]
+}

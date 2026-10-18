@@ -1,0 +1,20 @@
+{
+  "name": "vipul-ai-skills",
+  "owner": {
+    "name": "Vipul Chauhan"
+  },
+  "metadata": {
+    "description": "Claude Code skills by Vipul Chauhan."
+  },
+  "plugins": [
+    {
+      "name": "design-system-builder",
+      "source": "./plugins/design-system-builder",
+      "description": "Builds a new design system from a brief, screenshots, or a brand palette: design tokens, light and dark themes, component specs, and a WCAG contrast report.",
+      "version": "1.0.0",
+      "category": "design",
+      "license": "MIT",
+      "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility"]
+    }
+  ]
+}
