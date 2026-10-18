@@ -4,14 +4,14 @@ The design system builder skill creates a new design system from scratch. You gi
 
 The skill is for new products. It does not change the tokens of an existing codebase, and it does not build single components or one-off pages such as a landing page.
 
-## What Is in This Folder
+## What Is in This Plugin
 
-| Path                              | Purpose                                                                           |
-| --------------------------------- | --------------------------------------------------------------------------------- |
-| `SKILL.md`                        | The skill itself. Defines the workflow, token rules, and deliverables.            |
-| `README.md`                       | This file.                                                                        |
-| `references/tokens.example.css`   | A complete example of the three token layers, both themes, and accessibility queries. It shows structure only. It is not a palette to reuse. |
-| `scripts/check_contrast.py`       | Contrast checker. Resolves `var()` chains and tests the standard color pairs in both themes. |
+| Path                                                          | Purpose                                                                           |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `.claude-plugin/plugin.json`                                  | Plugin manifest.                                                                  |
+| `skills/design-system-builder/SKILL.md`                       | The skill itself. Defines the workflow, token rules, and deliverables.            |
+| `skills/design-system-builder/references/tokens.example.css`  | A complete example of the three token layers, both themes, and accessibility queries. It shows structure only. It is not a palette to reuse. |
+| `skills/design-system-builder/scripts/check_contrast.py`      | Contrast checker. Resolves `var()` chains and tests the standard color pairs in both themes. |
 
 ## How the Skill Works
 
@@ -138,7 +138,7 @@ Other rules the skill follows:
 
 ## Running the Contrast Checker Yourself
 
-The skill runs the checker for you. You can rerun it after editing the tokens. Run it from this folder, or adjust the path:
+The skill runs the checker for you. You can rerun it after editing the tokens. Run it from the skill folder (`skills/design-system-builder/`), or adjust the path:
 
 ```bash
 python3 -I scripts/check_contrast.py design-system/tokens.css
@@ -173,7 +173,7 @@ In Claude Code, add the marketplace and install the plugin:
 
 ### Manually
 
-Copy this folder into a skills directory that Claude Code reads:
+Copy the `skills/design-system-builder/` folder into a skills directory that Claude Code reads:
 
 - Project level: `.claude/skills/design-system-builder/`
 - User level: `~/.claude/skills/design-system-builder/`
@@ -181,6 +181,8 @@ Copy this folder into a skills directory that Claude Code reads:
 Keep `references/` and `scripts/` inside the skill folder. `SKILL.md` links to both by relative path.
 
 ## Customizing the Skill
+
+All paths below are inside `skills/design-system-builder/`.
 
 - Edit the defaults in section 2 of `SKILL.md` to change the accessibility target or the default themes.
 - Edit the token rules in section 4 to change naming, units, or the color space.
