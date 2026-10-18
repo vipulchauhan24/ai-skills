@@ -1,7 +1,7 @@
 {
-  "name": "design-system-builder",
+  "name": "product-toolkit",
   "version": "1.0.0",
-  "description": "Builds a new design system from a brief, screenshots, or a brand palette: design tokens, light and dark themes, component specs, and a WCAG contrast report.",
+  "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report.",
   "author": {
     "name": "Vipul Chauhan"
   },

@@ -168,7 +168,7 @@ In Claude Code, add the marketplace and install the plugin:
 
 ```text
 /plugin marketplace add vipulchauhan24/ai-skills
-/plugin install design-system-builder@vipul-ai-skills
+/plugin install product-toolkit@vipul-ai-skills
 ```
 
 ### Manually
