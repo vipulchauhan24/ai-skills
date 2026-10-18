@@ -1,3 +1,12 @@
+# Product Toolkit Plugin
+
+The product-toolkit plugin holds skills for building new products.
+
+| Skill                  | Purpose                                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `design-system-builder` | Creates a design system from a brief, screenshots, or a brand palette. Documented below.  |
+| `project-planner`       | Splits a spec into phases for a coding agent. See [its README](skills/project-planner/README.md). |
+
 # Design System Builder Skill
 
 The design system builder skill creates a new design system from scratch. You give it a product brief, inspiration screenshots, a brand palette, or a mix. It returns design tokens, light and dark themes, component specs, and a contrast report that has been checked against WCAG.

@@ -1,12 +1,12 @@
 {
   "name": "product-toolkit",
-  "version": "1.0.0",
-  "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report.",
+  "version": "1.1.0",
+  "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report, and a project planner that splits a spec into phases for a coding agent.",
   "author": {
     "name": "Vipul Chauhan"
   },
   "homepage": "https://github.com/vipulchauhan24/ai-skills",
   "repository": "https://github.com/vipulchauhan24/ai-skills",
   "license": "MIT",
-  "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "wcag"]
+  "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "wcag", "planning", "spec"]
 }

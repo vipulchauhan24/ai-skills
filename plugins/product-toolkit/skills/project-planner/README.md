@@ -4,12 +4,12 @@ The project planner skill turns one product and engineering spec into an ordered
 
 ## What Is in This Folder
 
-Paths are relative to the skills folder that contains `project-planner/`, `rules/`, and `templates/`.
+Paths are relative to the skill folder, `skills/project-planner/`, inside the product-toolkit plugin.
 
 | Path                         | Purpose                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------- |
-| `project-planner/skill.md`   | The skill itself. Defines how a spec is split into phases.                |
-| `project-planner/README.md`  | This file.                                                                |
+| `SKILL.md`                   | The skill itself. Defines how a spec is split into phases.                |
+| `README.md`                  | This file.                                                                |
 | `rules/project-rules.md`     | Your standing engineering rules. The planner applies them in every phase. |
 | `rules/markdown-rules.md`    | Markdown formatting rules for everything the planner writes.              |
 | `templates/spec-template.md` | The format to use when you write a spec.                                  |
@@ -115,8 +115,26 @@ Every later phase adds one capability on top of a working system. Each phase doc
 
 - Edit `rules/project-rules.md` to match your own conventions. Treat the current content as starter defaults.
 - Edit `rules/markdown-rules.md` to change how the output is formatted.
-- Edit `project-planner/skill.md` to change how phases are cut, sized, and documented.
+- Edit `SKILL.md` to change how phases are cut, sized, and documented.
 
 ## Installing the Skill
 
-The skill reads `../rules/project-rules.md` by relative path, so the `rules` folder must stay next to the `project-planner` folder. Keep `templates` there too. If you move `project-planner` to a different location, move `rules` and `templates` with it, or update the path in `project-planner/skill.md`.
+### From the plugin marketplace
+
+In Claude Code, add the marketplace and install the plugin:
+
+```text
+/plugin marketplace add vipulchauhan24/ai-skills
+/plugin install product-toolkit@vipul-ai-skills
+```
+
+Invoke the skill with `/product-toolkit:project-planner`, or let Claude pick it up from a matching prompt.
+
+### Manually
+
+Copy the `skills/project-planner/` folder into a skills directory that Claude Code reads:
+
+- Project level: `.claude/skills/project-planner/`
+- User level: `~/.claude/skills/project-planner/`
+
+Keep `rules/` and `templates/` inside the skill folder. `SKILL.md` reads `rules/project-rules.md` and `rules/markdown-rules.md` by relative path.
