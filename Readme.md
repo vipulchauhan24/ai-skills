@@ -9,10 +9,11 @@ A collection of Claude Code skills by Vipul Chauhan.
 | [design-system-builder](plugins/product-toolkit/skills/design-system-builder/README.md) | Ask Claude to "create a design system" and give it a product brief, screenshots, a brand palette, or a mix. It confirms a direction with you, then writes tokens, light and dark themes, component specs, and a contrast report. |
 | [project-planner](plugins/product-toolkit/skills/project-planner/README.md)                                                 | Write a spec with `skills/project-planner/templates/spec-template.md`, then ask Claude to "plan this project" using that file. It asks about high-stakes decisions and splits the spec into phases that a coding agent builds one at a time.   |
 | [doc-trimmer](plugins/product-toolkit/skills/doc-trimmer/README.md) | Ask Claude to "trim this" or "cut the noise" and give it pasted text, a file path, or a URL. It removes hedging, throat-clearing, padding, filler and repeated ideas, and keeps your facts, voice and structure. For a file it writes a `-cut` copy next to the original (`post.md` becomes `post-cut.md`) and never touches the original. It does not summarise or rewrite, and it leaves legal text, specs and fiction alone. |
+| [doc-reviewer](plugins/product-toolkit/skills/doc-reviewer/README.md) | Ask Claude to "poke holes in this" or "what could go wrong with this design" and give it pasted text, a file path, or a URL. It attacks the document and reports only holes: failure modes, unstated assumptions, skipped steps and unanswered questions, ranked `fatal`, `serious` or `sleeper`. Each finding quotes the text and ends with a question for the author. It gives no praise and no fixes, and it does not review code. |
 
 ## Installing
 
-The design-system-builder, project-planner and doc-trimmer skills are published in the product-toolkit Claude Code plugin. Add the marketplace and install it:
+The design-system-builder, project-planner, doc-trimmer and doc-reviewer skills are published in the product-toolkit Claude Code plugin. Add the marketplace and install it:
 
 ```text
 claude plugin marketplace add vipulchauhan24/ai-skills
@@ -21,7 +22,7 @@ claude plugin update product-toolkit@vipul-ai-skills
 /reload-plugins
 ```
 
-Invoke the skills with `/product-toolkit:design-system-builder`, `/product-toolkit:project-planner` and `/product-toolkit:doc-trimmer`, or let Claude pick them up from a matching prompt.
+Invoke the skills with `/product-toolkit:design-system-builder`, `/product-toolkit:project-planner`, `/product-toolkit:doc-trimmer` and `/product-toolkit:doc-reviewer`, or let Claude pick them up from a matching prompt.
 
 ## Using the skills with other providers
 
@@ -40,6 +41,7 @@ Install into your user skills (`~/.gemini/skills/`) or a single project (`.gemin
 gemini skills install ./design-system-builder
 gemini skills install ./project-planner
 gemini skills install ./doc-trimmer
+gemini skills install ./doc-reviewer
 
 # or, for one project only
 gemini skills install ./design-system-builder --scope workspace
@@ -53,14 +55,14 @@ Copy the folders into a skills directory Codex scans. Use `~/.agents/skills/` fo
 
 ```bash
 mkdir -p ~/.agents/skills
-cp -r design-system-builder project-planner doc-trimmer ~/.agents/skills/
+cp -r design-system-builder project-planner doc-trimmer doc-reviewer ~/.agents/skills/
 ```
 
 Restart Codex, then name the skill in your prompt or describe the task. Some Codex versions read `~/.codex/skills/` instead; if the skills do not show up, check the [Codex skills docs](https://developers.openai.com/codex/skills) for the current path.
 
 ### Other agents that support `SKILL.md`
 
-Cursor, GitHub Copilot, opencode and similar tools load the same folder format from their own skills directory. Copy the three folders there; see each tool's docs for the path.
+Cursor, GitHub Copilot, opencode and similar tools load the same folder format from their own skills directory. Copy the four folders there; see each tool's docs for the path.
 
 ### Chat apps and APIs without skill support
 
@@ -71,12 +73,14 @@ ChatGPT, Gemini web, or a raw OpenAI or Gemini API call have no skills loader, s
    - project-planner: `rules/project-rules.md`, `templates/spec-template.md`, and `plugins/product-toolkit/shared/markdown-rules.md`
    - doc-trimmer: `plugins/product-toolkit/shared/markdown-rules.md`
    - design-system-builder: `references/tokens.example.css`
-3. Send your request (a spec to plan, a brief, screenshots or palette to build from, or text to trim).
+   - doc-reviewer: none, `SKILL.md` is enough
+3. Send your request (a spec to plan, a brief, screenshots or palette to build from, text to trim, or a document to review).
 
 ### What to expect outside Claude Code
 
 - design-system-builder ends by running `python3 -I scripts/check_contrast.py design-system/tokens.css`. This needs an agent with shell access and Python. In a plain chat, run the script yourself on the generated `tokens.css`, or the contrast check is skipped.
 - doc-trimmer fetches URLs with `curl` and writes the `-cut` file, so both need an agent with shell and file access. In a plain chat, paste the text and copy the result yourself.
+- doc-reviewer fetches URLs with `curl` and reads files, so it needs an agent with shell and file access for those inputs. In a plain chat, paste the document text.
 - Screenshot mode needs a model that accepts image input.
 - The `/product-toolkit:...` commands are Claude Code only. Elsewhere, trigger the skills with a prompt.
 
