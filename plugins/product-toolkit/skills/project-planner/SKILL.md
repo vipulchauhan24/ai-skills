@@ -331,7 +331,7 @@ them next to the source spec:
   links to each `phase-N-<slug>.md` -- an agent or human should be able to
   open the index and navigate straight to the phase they're implementing.
 
-Follow `rules/markdown-rules.md` for all Markdown in the output: the index
+Follow `../../shared/markdown-rules.md` for all Markdown in the output: the index
 file and every phase document.
 
 ## Handoff Readiness Checklist

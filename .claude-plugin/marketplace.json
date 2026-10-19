@@ -10,11 +10,11 @@
     {
       "name": "product-toolkit",
       "source": "./plugins/product-toolkit",
-      "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report, and a project planner that splits a spec into phases for a coding agent.",
-      "version": "1.0.0",
+      "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report, a project planner that splits a spec into phases for a coding agent, and a doc trimmer that cuts hedging, filler, and repeated ideas from text, files, or URLs.",
+      "version": "1.2.0",
       "category": "design",
       "license": "MIT",
-      "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "planning", "spec"]
+      "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "planning", "spec", "editing", "writing", "trimming"]
     }
   ]
 }
