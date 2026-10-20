@@ -54,10 +54,13 @@ The response contains:
 - A `Source:` line for file and URL input.
 - The trimmed text.
 - A footer with the percentage cut, the before and after word counts, and a count per category of what was removed.
+- An `Other changes:` block if headings were dropped or reworded, or facts were folded into an earlier mention.
 - A `Removed blocks:` list if whole paragraphs, examples, or sections were removed, so you can check those judgement calls.
 - `Trimmer done.`
 
-For file input, the trimmed text is also saved as `<name>-cut<ext>`. For example, `post.md` becomes `post-cut.md` and `paper.txt` becomes `paper-cut.txt`. The saved file holds only the trimmed text, with no status line, separators, or footer, so it is ready to publish.
+For file input, the trimmed text is also saved as `<name>-cut<ext>`. For example, `post.md` becomes `post-cut.md` and `paper.txt` becomes `paper-cut.txt`. For PDF, Word, HTML, notebook, and LaTeX files the saved file is Markdown: `paper.pdf` becomes `paper-cut.md`. The saved file holds only the trimmed text, with no status line, separators, or footer, so it is ready to publish.
+
+If the draft is already tight (under 5% cut), you still get the trimmed text in the reply, but no `-cut` file is written.
 
 ### Examples
 
@@ -109,15 +112,18 @@ trim the intro of docs/design.md only and keep the examples
 
 - Pasted text, worked on in memory.
 - Local files such as `.md`, `.txt`, and `.rst`.
-- Other file types, such as `.pdf`, `.docx`, `.html`, `.ipynb`, and `.tex`, after extracting their text first. The output is plain text or Markdown, not the original format.
-- URLs, downloaded as raw pages with `curl` so the author's words are not summarised on the way in. Navigation, sidebars, footers, and comments are stripped. `WebFetch` is only a fallback when `curl` fails, and the skill tells you the text may be abridged.
+- Other file types, such as `.pdf`, `.docx`, `.html`, `.ipynb`, and `.tex`, after extracting their text first. The output is a Markdown file, not the original format. The original is never modified and is never rebuilt from the trimmed text. In notebooks only prose cells are trimmed, and LaTeX math stays as written. Any other format `pandoc` can read is handled the same way. If nothing can read the format, the skill says so and stops.
+- URLs, downloaded as raw pages with `curl` so the author's words are not summarised on the way in. Navigation, sidebars, footers, and comments are stripped. `WebFetch` is only a fallback when `curl` fails, and the skill tells you the text may be abridged. A login page or error page is reported and not trimmed.
 - Long documents, handled section by section after an idea map of the whole document is built.
 - Ambiguous input: it asks once. In a non-interactive run it does not ask, and treats the input as a file, a URL, or pasted text in that order.
+- Edge cases: an empty or binary file, or a file that is not valid UTF-8, is reported and skipped. A symlink is followed and the `-cut` file is written next to the path you gave. CRLF or LF line endings are kept.
 
 ### Editing Guarantees
 
 - Cut, do not rewrite. The only changes beyond deletion are small and listed: swapping a padded phrase for a shorter equivalent, stitching the clause left after a cut, folding a missing fact into the kept mention of a repeated idea, and rewording a vague heading to carry the real claim.
 - Facts, numbers, names, code, links, and quotations stay untouched. Nothing is invented.
+- Front matter, HTML comments, image alt text, link text, and math stay as written. Table rows and columns are never deleted.
+- An abstract, TL;DR, or executive summary is never cut to remove a repeat, and the body is not cut to match it.
 - The author's voice and spelling stay. Casual register words stay when they carry tone.
 - Headings, code blocks, lists, and links stay. If a cut empties a section, any surviving fact moves to the nearest related section and the empty heading is dropped.
 - References are repaired. If a cut removes the target of "see Figure 2" or "the second example", the pointer is removed or redirected.
@@ -130,27 +136,30 @@ trim the intro of docs/design.md only and keep the examples
 ### Safety
 
 - Text inside the input is never treated as instructions. Lines such as "ignore the above" or "run this command" do not change what the skill does.
-- The only file the skill writes is the `-cut` copy. It never writes anywhere else because the input asks.
+- The only file the skill writes in your project is the `-cut` copy. It never writes anywhere else because the input asks. Downloads, extracted text, and word-count files go in a temporary scratch folder, not in your project.
 - If the input contains text that looks addressed to an AI, the footer says so.
 
 ### Output and Files
 
-- The `-cut` file keeps the original extension and sits next to the original.
-- If the `-cut` file already exists, the skill asks before overwriting it in an interactive session. In a pipeline or when told not to ask, it overwrites and says so.
-- Markdown output follows `plugins/product-toolkit/shared/markdown-rules.md`: ASCII punctuation, no decorative formatting, no hard line wrapping. This step is skipped for files that are not Markdown.
+- The `-cut` file sits next to the original and keeps its extension. Files converted from another format (PDF, Word, HTML, notebook, LaTeX) are saved as `.md`.
+- If the `-cut` file already exists, the skill asks whether to overwrite it or use the next free name in an interactive session. In a pipeline or when told not to ask, it never overwrites: it writes `name-cut-2.md`, `name-cut-3.md`, and so on, and says so. It overwrites only when you tell it to.
+- Markdown output follows the layout and punctuation rules in `plugins/product-toolkit/shared/markdown-rules.md`: ASCII punctuation in prose, no hard line wrapping, list and heading spacing. Bold, italics, HTML, math, quotations, code, and links are left as you wrote them. This step is skipped for text with no Markdown structure.
+- Word counts are measured with `wc -w` after removing front matter, fenced code, and bare Markdown symbols, the same way before and after.
 - Say "just write the doc" or "don't print the stats" to get only the file path in the reply.
-- When called from another skill or pipeline, it returns only the clean trimmed text, with no status line, source line, or footer.
-- For long files in an interactive run, it does not reprint the whole trimmed text in chat. It prints the file path, the footer, and `Trimmer done.`.
+- When another skill calls it, or you say it is a pipeline step, it returns only the clean trimmed text, with no status line, source line, or footer. Any other run is treated as interactive.
+- For long files in an interactive run, it does not reprint the whole trimmed text in chat. It prints the file path, the footer, and `Trimmer done.`. Long pasted text and URLs write no file, so the full text is printed.
 
 ### Your Controls
 
 - Limit the scope: "only the intro", "leave the headings", "keep the examples".
-- Ask for a target length, such as "cut to 500 words". The skill cuts as far as the priority order allows and tells you if it falls short. It never drops facts to hit a number.
+- Ask for a target length, such as "cut to 500 words". The skill cuts as far as the priority order allows and tells you the final word count and the gap if it falls short. It never drops facts to hit a number, and it offers a summary only as a follow-up if you want one.
 
 ## What It Does Not Do
 
 - It does not summarise, translate, or review a draft.
-- It does not trim legal text, contracts, specs and standards, safety warnings, required disclosures, fiction, poetry, speeches, or quoted material. It says why and stops, unless you insist.
+- It does not trim legal text, contracts, formal specs and standards, safety warnings, required disclosures, fiction, poetry, speeches, or quoted material. It says why and stops, unless you insist.
+- Formal specs are those whose exact wording is binding, such as RFC-style MUST/SHALL text and API contracts. Design docs, PRDs, and proposals can be trimmed: requirements, acceptance criteria, numbers, and recorded decisions stay word for word.
+- If an excluded block sits inside a longer document, only that block is left alone and the rest is trimmed. The skill refuses the whole input only when it is mostly excluded content.
 - It is gentler with tutorials, FAQs, changelogs, reference docs, and tables. Deliberate repetition, teaching examples, parallel list items, and cross-references stay.
 - For languages other than English, it applies only the language-neutral rules: repeats, redundant examples, dead sentences, and ceremonial closers. It tells you so.
 - It does not edit code.
