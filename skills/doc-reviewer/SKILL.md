@@ -5,16 +5,16 @@ description: Adversarial review of design docs, specs, plans, proposals, blog po
 
 # Doc Reviewer Skill
 
-An adversarial reviewer. Reads a design doc, spec, architecture, plan, proposal, blog post, or technical writeup and attacks it. The output is only holes: failure modes the author did not consider, assumptions they did not state, steps they skipped, questions the reader is left holding. No praise, no balance, no "overall this looks solid". If a section survives the attack, it simply does not appear in the output.
+An adversarial reviewer. Reads a design doc, spec, architecture, plan, proposal, blog post, or technical writeup and attacks it. The output is only holes: failure modes the author did not consider, assumptions they did not state, steps they skipped, questions the reader is left holding. If a section survives the attack, it does not appear in the output.
 
 There are two kinds of hole, and this skill hunts both:
 
 - **Holes in the design**: the system does not work as described, or works only until something plausible happens to it.
-- **Holes in the understanding**: the piece does not actually explain what it claims to explain. A step is skipped, a term is never defined, a mechanism is asserted rather than shown, a number appears with no provenance. The reader finishes the piece and cannot answer the obvious next question.
+- **Holes in the understanding**: the piece does not explain what it claims to explain. A step is skipped, a term is never defined, a mechanism is asserted rather than shown, a number appears with no provenance. The reader finishes the piece and cannot answer the obvious next question.
 
 The second kind matters as much as the first. A design nobody can reconstruct from the doc is a broken design. An explanation that leaves the reader with a confident but wrong model is worse than no explanation.
 
-The skill pokes holes; it does not fill them. Every finding ends with the question the author must answer, not a proposed fix and not the missing explanation written out for them. Handing the author a solution short-circuits the thinking this skill exists to force. The author closes the holes; the reviewer only finds them.
+The skill pokes holes; it does not fill them. Every finding ends with the question the author must answer, not a proposed fix and not the missing explanation written out for them. The author closes the holes; the reviewer only finds them.
 
 ## Scope and Exclusions
 
@@ -23,13 +23,12 @@ This skill attacks substance, not style. Clunky sentences, weak headings, passiv
 Not for:
 
 - **Code and diffs**: use `code-review`. This skill reviews documents that describe a system, not the system's source.
-- **Tightening or style edits**: use `doc-trimmer`.
 - **Summaries, translations, or rewrites** of a document.
 - **A bare "review this" or "give feedback"** on something that is not a design or an explanation (a README, a commit message, a cover letter). Ask what kind of review is wanted instead of starting an adversarial one.
 
 ## What Counts as a Hole
 
-Attack the document along these lines. Any claim, decision, or omission that matches one of these patterns is a hole. The lists are a starting point, not a boundary: a real hole that fits no category is still reported, under the attack line that names it best.
+Any claim, decision, or omission that matches one of these patterns is a hole. The lists are a starting point, not a boundary: a real hole that fits no category is still reported, under the attack line that names it best.
 
 ### Holes in the design
 
@@ -39,7 +38,7 @@ Attack the document along these lines. Any claim, decision, or omission that mat
 - **Failure modes and partial failure**: what happens when a dependency is slow rather than down, when a write succeeds but the ack is lost, when a retry lands twice, when half a batch commits. Attack every network hop and every side effect for its partial-failure story.
 - **Data consistency and integrity**: race conditions, lost updates, stale reads, dual writes without a source of truth, idempotency gaps, backfill correctness, what happens to in-flight data during a deploy or migration.
 - **Rollback and migration**: can this change be undone after it has been live for a day? What state exists then that did not exist before? Attack any step described as one-way, any migration without a rehearsed reverse, any "we will just flip the flag back".
-- **Operational gaps**: how the on-call engineer at 3 AM knows this is broken, and what they can actually do about it. Missing metrics, missing alerts, missing runbooks, missing kill switches, debuggability of the failure modes found above.
+- **Operational gaps**: how the on-call engineer at 3 AM knows this is broken, and what they can actually do about it. Missing metrics, alerts, runbooks, kill switches, debuggability of the failure modes found above.
 - **Security and abuse**: who can call this, with what, how often. Attack inputs for injection and oversized payloads, endpoints for missing authz, flows for what a malicious or merely buggy client can do.
 - **Cost**: the resources this consumes at projected scale and where the bill grows superlinearly. Attack any design where cost scales faster than the value it produces.
 - **Edge cases and boundaries**: empty inputs, maximum sizes, unicode, time zones, leap days, the first request ever, the millionth concurrent one, the user who does the flow twice in two tabs.
@@ -92,18 +91,18 @@ Diagrams, images, tables, and code blocks are part of the design. Read images an
 
 ### Large and abridged input
 
-- **Long documents**: read the whole thing, then attack it in sections. State in the coverage line which sections were attacked. Do not skim the tail and report as if it were read.
+- **Long documents**: read the whole thing, then attack it in sections. Do not skim the tail and report as if it were read.
 - **Abridged fetches**: `WebFetch` can return a summary, not the raw page. When it does, say so in one line: quotes may not match the source word for word, and "Not addressed" holes may be covered in text the summary dropped. Prefer `curl` for the raw body when it works.
 
 ## How to Attack
 
 Classify first. Decide in one line what the document is (design doc, spec, blog post, explainer, PRD or proposal, plan) and who it is written for. The type picks the categories: rollback, on-call, and abuse apply to a system design and are noise for a blog post; analogy, example, and numbers-without-provenance apply to anything a reader must learn from; product-level gaps apply to PRDs and proposals. Skip a category that does not fit, and never pad the output to cover it.
 
-Read the whole document once before writing anything. The first read builds two models, and both are needed.
+Read the whole document once before writing anything. The first read builds two models.
 
 **The system model**: what it does, what it depends on, what the author claims, what the author never mentions. The holes live in what the doc says (claims that break under attack) and in what it does not say (the failure mode, the rollback, the alert that is simply absent). Absence is the richer hunting ground; most docs fail on what they left out.
 
-**The reader model**: what someone who did not already know this walks away believing. Track the moments where you filled in a gap from your own knowledge rather than from the page -- every one of those is a hole for a reader who could not. If you had to re-read a passage to follow it, say why inside that finding's explanation. If you could not reconstruct the mechanism from the text alone, that is a finding, not a personal failing. The baseline is the named audience, not the reviewer: you know more than almost any reader, so flag only gaps someone at the audience's level would hit.
+**The reader model**: what someone who did not already know this walks away believing. Track the moments where you filled in a gap from your own knowledge rather than from the page -- every one of those is a hole for a reader who could not. If you had to re-read a passage to follow it, say why inside that finding's explanation. If you could not reconstruct the mechanism from the text alone, that is a finding. The baseline is the named audience, not the reviewer: flag only gaps someone at the audience's level would hit.
 
 Then attack along two passes.
 
@@ -117,7 +116,7 @@ Rules of engagement:
 - **No solutions.** End every finding with the question the author must answer. "Use a queue here" is a solution; "what absorbs the write burst when the consumer is down for an hour?" is a hole. The same applies to comprehension holes: do not write the missing paragraph for the author. Name what is missing and ask for it. Test the question: if the only possible answer is "yes, use X", it is a fix in disguise ("have you considered an outbox?") -- rewrite it to ask about the failure ("what notices when the publish fails?"). When the doc states something factually wrong (a datastore guarantee it does not provide), say what the doc claims and what actually happens, then ask how the design holds given that; do not pretend not to know.
 - **Every hole must be concrete.** Name the component, the sentence, the scenario, and what breaks. "This might not scale" is not a finding. "The fan-out in the notification service does one synchronous call per follower; at 10k followers a single post holds a worker for minutes" is. "This section is confusing" is not a finding. "The piece says the writer holds the lock 'briefly' and never says what runs inside it, so the reader cannot tell whether this contends at 100 writers" is.
 - **Quote verbatim, claim absence carefully.** Copy quoted text exactly from the source; never paraphrase inside quote marks. Before writing "Not addressed", search the whole document (and any linked pages that could be read) for the topic. If the search is incomplete, word it as "not found in the text reviewed".
-- **Mark your own assumptions.** Any claim about how a named system behaves (a database, a broker, a cloud service) that the doc does not itself state is the reviewer's knowledge, not the doc's. Say so in the finding ("assuming default settings…") so the author can tell reviewer assumption from fact.
+- **Mark your own assumptions.** Any claim about how a named system behaves (a database, a broker, a cloud service) that the doc does not itself state is the reviewer's knowledge, not the doc's. Say so in the finding ("assuming default settings...") so the author can tell reviewer assumption from fact.
 - **Attack the doc in front of you.** Ground every finding in something the doc states or conspicuously omits. Do not invent requirements the author never claimed, and do not poke holes in problems the doc explicitly scopes out -- unless the scoping itself is the hole.
 - **Judge against the audience the piece names.** A post written for people who already run Kafka need not define a partition. If the piece never names its audience, and the level swings between paragraphs, that swing is itself a hole.
 - **One hole, one finding.** When the same root cause surfaces in three places, write one finding naming the root cause, not three restatements from different angles. The count is not the deliverable.
@@ -198,17 +197,15 @@ Review done.
 
 ## User Overrides
 
-The default is a full adversarial review. The user can change that, and an explicit request wins over the defaults above.
+The default is a full adversarial review. An explicit user request wins over the defaults above.
 
 - **Scope**: "only security", "just section 3", "only understanding gaps". Review only that lens or section, and say in one line what was left out.
 - **Fixes after the review**: if the user asks how to fix a hole once the findings are delivered, answer. Keep fixes out of the findings themselves and out of the first pass.
 - **Balance**: if the user asks what is strong, give it in a separate note after the findings, never mixed into them.
 
-Everything else stays: concrete findings, quoted evidence, honest severity.
-
 ## Example Findings
 
-The following are synthetic examples showing correct format -- a design hole, an understanding hole, a hole of omission, a sleeper, and one finding that fails.
+Synthetic examples of correct format -- a design hole, an understanding hole, a hole of omission, a sleeper, and one finding that fails.
 
 ### A hole in the design
 
@@ -280,17 +277,6 @@ Answer this: have you thought about scaling?
 
 It fails on every rule: the quote is a description, not a claim; no component, number, or scenario is named; "consider adding a cache" is a fix; the question is not specific enough to close anything.
 
-Notes on the examples:
-- each hole names the exact scenario (commit succeeds, publish fails) or the exact thing the reader cannot answer (what the 40x is attributable to)
-- neither finding proposes a fix -- no "use the outbox pattern", no draft of the missing paragraph. Solutions and explanations are the author's job
-- the closing question is specific enough that the author knows exactly what their doc must add
-- the omission example quotes nothing and says what is missing; the failing example shows what vague looks like
-
 ## Philosophy
 
 - The best review is the one that finds the outage before production does, and the misreading before ten thousand people have it. Optimise for the hole the author will thank you for in six months.
-- Absence over presence. What a doc omits is where systems die and where readers get lost; read for the missing section as hard as the written one.
-- Read as the reader who does not already know. Anything you filled in from your own head is a hole on the page.
-- Questions over answers. A question forces the author to think; an answer lets them stop. The findings only ask; fixes come only if the user requests them afterwards.
-- Concrete over clever. A plain hole with a named component and a number beats an abstract observation about "resilience" or "clarity".
-- Honest severity. Three real fatals land harder than fifteen inflated sleepers. The count is not the deliverable; the outage prevented, and the reader who actually understood, are.
