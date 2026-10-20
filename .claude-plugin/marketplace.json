@@ -1,7 +1,8 @@
 {
   "name": "vipul-ai-skills",
   "owner": {
-    "name": "Vipul Chauhan"
+    "name": "Vipul Chauhan",
+    "email": "vipul9556@gmail.com"
   },
   "metadata": {
     "description": "Claude Code skills by Vipul Chauhan."
@@ -9,12 +10,28 @@
   "plugins": [
     {
       "name": "product-toolkit",
-      "source": "./plugins/product-toolkit",
+      "source": "./",
       "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report, a project planner that splits a spec into phases for a coding agent, a doc trimmer that cuts hedging, filler, and repeated ideas from text, files, or URLs, and a doc reviewer that attacks a design doc, spec, or writeup and reports only the holes, ranked by severity.",
       "version": "1.3.1",
-      "category": "design",
+      "category": "workflow",
       "license": "MIT",
-      "keywords": ["design-system", "design-tokens", "theming", "dark-mode", "accessibility", "planning", "spec", "editing", "writing", "trimming", "review"]
+      "author": {
+        "name": "Vipul Chauhan",
+        "email": "vipul9556@gmail.com"
+      },
+      "keywords": [
+        "design-system",
+        "design-tokens",
+        "theming",
+        "dark-mode",
+        "accessibility",
+        "planning",
+        "spec",
+        "editing",
+        "writing",
+        "trimming",
+        "review"
+      ]
     }
   ]
 }

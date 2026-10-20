@@ -39,8 +39,8 @@ problem. Never let a phase rebuild something the codebase already has.
 
 ## Standing Project Rules
 
-Before writing any phase document, read `rules/project-rules.md` (the
-`project-rules` file in the `rules` folder inside this skill's folder). It holds the user's
+Before writing any phase document, read `../../rules/shared/project-rules.md` (the
+`project-rules` file in the plugin's `rules/shared` folder). It holds the user's
 standing engineering rules for every project: code style, error handling,
 testing, security baseline, migrations, git and PR habits, and how coding
 agents should behave. Apply them in every phase without restating them in
@@ -331,7 +331,7 @@ them next to the source spec:
   links to each `phase-N-<slug>.md` -- an agent or human should be able to
   open the index and navigate straight to the phase they're implementing.
 
-Follow `../../shared/markdown-rules.md` for all Markdown in the output: the index
+Follow `../../rules/shared/markdown-rules.md` for all Markdown in the output: the index
 file and every phase document.
 
 ## Handoff Readiness Checklist

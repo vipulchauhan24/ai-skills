@@ -4,20 +4,21 @@ The project planner skill turns one product and engineering spec into an ordered
 
 ## What Is in This Folder
 
-Paths are relative to the skill folder, `skills/project-planner/`, inside the product-toolkit plugin.
+Paths are relative to the skill folder, `skills/project-planner/`. The skill also reads three files from the plugin root, two levels up.
 
-| Path                         | Purpose                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `SKILL.md`                   | The skill itself. Defines how a spec is split into phases.                |
-| `README.md`                  | This file.                                                                |
-| `rules/project-rules.md`     | Your standing engineering rules. The planner applies them in every phase. |
-| `templates/spec-template.md` | The format to use when you write a spec.                                  |
+| Path                                     | Purpose                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------- |
+| `SKILL.md`                               | The skill itself. Defines how a spec is split into phases.                |
+| `README.md`                              | This file.                                                                |
+| `../../rules/shared/project-rules.md`    | Your standing engineering rules. The planner applies them in every phase. |
+| `../../rules/shared/markdown-rules.md`   | Formatting rules for the Markdown the planner writes. Shared with doc-trimmer. |
+| `../../templates/spec-template.md`       | The format to use when you write a spec.                                  |
 
 ## How the Skill Works
 
-1. You write a spec using `templates/spec-template.md`.
+1. You write a spec using `templates/spec-template.md` from the plugin root.
 2. You ask Claude to plan the project and give it the spec.
-3. The planner reads your codebase (if there is one) and the files in `rules/`.
+3. The planner reads your codebase (if there is one) and the standing rules in `rules/shared/project-rules.md`.
 4. The planner asks you about high-stakes decisions, such as the tech stack, shared data model, auth, and breaking changes.
 5. The planner writes an overview and one design document per phase.
 6. You give each phase document to a coding agent and review the PR it produces.
@@ -26,7 +27,7 @@ Paths are relative to the skill folder, `skills/project-planner/`, inside the pr
 
 ### Step 1: Write the Spec
 
-Copy `templates/spec-template.md`, replace its content with your own, and save it next to your project. A good spec states the goal, a measurable outcome, the requirements, and the non-goals.
+Copy `templates/spec-template.md` (at the plugin root), replace its content with your own, and save it next to your project. A good spec states the goal, a measurable outcome, the requirements, and the non-goals.
 
 The more the spec says about the project type, users, stack constraints, and external services, the fewer questions the planner needs to ask.
 
@@ -112,8 +113,8 @@ Every later phase adds one capability on top of a working system. Each phase doc
 
 ## Customizing the Skill
 
-- Edit `rules/project-rules.md` to match your own conventions. Treat the current content as starter defaults.
-- Edit `../../shared/markdown-rules.md` to change how the output is formatted. Other skills in the plugin share this file.
+- Edit `rules/shared/project-rules.md` (at the plugin root) to match your own conventions. Treat the current content as starter defaults.
+- Edit `rules/shared/markdown-rules.md` to change how the output is formatted. Other skills in the plugin share this file.
 - Edit `SKILL.md` to change how phases are cut, sized, and documented.
 
 ## Installing the Skill
@@ -131,9 +132,9 @@ Invoke the skill with `/product-toolkit:project-planner`, or let Claude pick it 
 
 ### Manually
 
-Copy the `skills/project-planner/` folder into a skills directory that Claude Code reads:
+Copy the `skills/project-planner/` folder, the `rules/shared/` folder and the `templates/` folder into a skills directory that Claude Code reads, and keep their relative layout:
 
-- Project level: `.claude/skills/project-planner/`
-- User level: `~/.claude/skills/project-planner/`
+- Project level: `.claude/skills/project-planner/`, `.claude/rules/shared/` and `.claude/templates/`.
+- User level: `~/.claude/skills/project-planner/`, `~/.claude/rules/shared/` and `~/.claude/templates/`.
 
-Keep `rules/` and `templates/` inside the skill folder. `SKILL.md` reads `rules/project-rules.md` by relative path, and `../../shared/markdown-rules.md` from the plugin's `shared/` folder.
+`SKILL.md` reads `../../rules/shared/project-rules.md` and `../../rules/shared/markdown-rules.md` by relative path, so `rules/` must sit two levels above the skill folder.

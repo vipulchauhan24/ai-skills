@@ -13,7 +13,7 @@ Paths are relative to the skill folder, `skills/doc-trimmer/`, inside the produc
 | `SKILL.md`  | The skill itself. Defines what counts as noise, the editing rules, and the output format.                 |
 | `README.md` | This file.                                                                                                |
 
-The skill also reads `plugins/product-toolkit/shared/markdown-rules.md`, which it shares with project-planner. It uses that file to format Markdown output.
+The skill also reads `rules/shared/markdown-rules.md` at the plugin root, which it shares with project-planner. It uses that file to format Markdown output.
 
 ## What It Does
 
@@ -143,7 +143,7 @@ trim the intro of docs/design.md only and keep the examples
 
 - The `-cut` file sits next to the original and keeps its extension. Files converted from another format (PDF, Word, HTML, notebook, LaTeX) are saved as `.md`.
 - If the `-cut` file already exists, the skill asks whether to overwrite it or use the next free name in an interactive session. In a pipeline or when told not to ask, it never overwrites: it writes `name-cut-2.md`, `name-cut-3.md`, and so on, and says so. It overwrites only when you tell it to.
-- Markdown output follows the layout and punctuation rules in `plugins/product-toolkit/shared/markdown-rules.md`: ASCII punctuation in prose, no hard line wrapping, list and heading spacing. Bold, italics, HTML, math, quotations, code, and links are left as you wrote them. This step is skipped for text with no Markdown structure.
+- Markdown output follows the layout and punctuation rules in `rules/shared/markdown-rules.md` at the plugin root: ASCII punctuation in prose, no hard line wrapping, list and heading spacing. Bold, italics, HTML, math, quotations, code, and links are left as you wrote them. This step is skipped for text with no Markdown structure.
 - Word counts are measured with `wc -w` after removing front matter, fenced code, and bare Markdown symbols, the same way before and after.
 - Say "just write the doc" or "don't print the stats" to get only the file path in the reply.
 - When another skill calls it, or you say it is a pipeline step, it returns only the clean trimmed text, with no status line, source line, or footer. Any other run is treated as interactive.
@@ -181,7 +181,7 @@ Distributed systems are hard to reason about. When multiple nodes communicate ov
 ## Customising
 
 - Edit `SKILL.md` to add or remove noise patterns, or to change the footer categories.
-- Edit `plugins/product-toolkit/shared/markdown-rules.md` to change how the output is formatted. Other skills in the plugin use the same file.
+- Edit `rules/shared/markdown-rules.md` (at the plugin root) to change how the output is formatted. Other skills in the plugin use the same file.
 
 ## Installing
 
@@ -193,7 +193,7 @@ claude plugin install product-toolkit@vipul-ai-skills
 /reload-plugins
 ```
 
-To use it as a standalone skill, copy the `doc-trimmer/` folder and the plugin's `shared/` folder, and keep their relative layout. The skill reads `../../shared/markdown-rules.md`, so `shared/` must sit two levels above the skill folder:
+To use it as a standalone skill, copy the `doc-trimmer/` folder and the plugin's `rules/shared/` folder, and keep their relative layout. The skill reads `../../rules/shared/markdown-rules.md`, so `rules/` must sit two levels above the skill folder:
 
-- Project level: `.claude/skills/doc-trimmer/` and `.claude/shared/markdown-rules.md`.
-- User level: `~/.claude/skills/doc-trimmer/` and `~/.claude/shared/markdown-rules.md`.
+- Project level: `.claude/skills/doc-trimmer/` and `.claude/rules/shared/markdown-rules.md`.
+- User level: `~/.claude/skills/doc-trimmer/` and `~/.claude/rules/shared/markdown-rules.md`.
