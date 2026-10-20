@@ -13,7 +13,9 @@ Paths are relative to the skill folder, `skills/design-system-builder/`, inside 
 | `SKILL.md`                     | The skill itself. Defines the workflow, token rules, and deliverables.            |
 | `README.md`                    | This file.                                                                        |
 | `references/tokens.example.css` | A complete example of the three token layers, both themes, and accessibility queries. It shows structure only. It is not a palette to reuse. |
-| `scripts/check_contrast.py`    | Contrast checker. Resolves `var()` chains and tests the standard color pairs in both themes. |
+| `scripts/check_contrast.py`    | Contrast engine. Takes a design system folder, resolves `var()` chains and tests color pairs in both themes. |
+| `scripts/check-contrast.sh`    | Contrast policy. Holds the pairs that must pass, runs the engine and writes `contrast-reports/<name>.txt`. |
+| `scripts/build_tokens_json.py` | Generates `tokens.json` (W3C DTCG) from a folder's `tokens.css`. |
 
 ## How the Skill Works
 
@@ -93,20 +95,20 @@ In screenshots and mixed modes, colors read from images are approximations. The 
 
 ### Step 4: Review the Output
 
-The skill writes to `design-system/` in the working directory unless you name another location.
+The skill names the theme in its direction summary (for example `Ember`) and writes to a folder of that name, `<theme-name>/`, in the working directory unless you name another location.
 
-| File                  | Contents                                                                                       |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
-| `tokens.css`          | Primitive, semantic, and component tokens. Light and dark themes. Accessibility media queries. |
-| `components.md`       | Component specs. Button, Input, Card, and Alert are fully specified. Others list variants and states. |
-| `README.md`           | Direction rationale, token naming guide, usage examples, Figma naming map, versioning notes.   |
-| `contrast-report.txt` | The output of the contrast checker.                                                            |
+| File                 | Contents                                                                                       |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| `tokens.css`         | Source of truth. Primitive, semantic, and component tokens. Light and dark themes, density modes if used, accessibility media queries. |
+| `tokens.json`        | W3C DTCG export for Figma (Tokens Studio) and Style Dictionary. Generated from `tokens.css`.   |
+| `tailwind-theme.css` | Tailwind v4 preset that imports `tokens.css` and exposes it as utilities. Only for web with Tailwind. |
+| `components.md`      | Component specs. Button, Input, Card, and Alert are fully specified. Others list variants and states. |
+| `README.md`          | Direction rationale, brand contrast notes, usage, naming guide, Figma naming map, versioning notes. |
+| `preview.html`       | Visual reference page for the palette, type, controls and feedback, in light and dark.         |
 
-Extra files depend on the platform:
+The contrast report is written next to the folder, to `contrast-reports/<theme-name-lowercase>.txt`.
 
-- Tailwind: a v4 `@theme` block that maps to the semantic tokens.
-- Multi-platform or other tooling: `tokens.json` in W3C DTCG format, for Style Dictionary and Figma plugins.
-- Native iOS or Android: `tokens.json` plus a short mapping to platform primitives. Sizes use dp or pt.
+Native iOS or Android projects get `tokens.json` plus a short mapping to platform primitives in the README. Sizes use dp or pt. The CSS-only files do not apply.
 
 The chat reply stays short. It lists the direction summary, the assumptions, the checker result, and the files written.
 
@@ -140,27 +142,28 @@ Other rules the skill follows:
 
 ## Running the Contrast Checker Yourself
 
-The skill runs the checker for you. You can rerun it after editing the tokens. Run it from the skill folder, or adjust the path:
+The skill runs the checks for you. You can rerun them after editing the tokens. Run these from the skill folder, or adjust the paths:
 
 ```bash
-python3 -I scripts/check_contrast.py design-system/tokens.css
+./scripts/check-contrast.sh <theme-name>             # check and write contrast-reports/<theme-name>.txt
+python3 -I scripts/build_tokens_json.py <theme-name>  # regenerate tokens.json after editing tokens.css
 ```
 
-The checker tests both themes. Text pairs need 4.5:1. Non-text UI such as borders and the focus ring needs 3:1. It exits with code 1 if any pair fails or any color cannot be parsed. It also warns about colors outside the sRGB gamut and errors on a `var()` that points to an undefined token.
+`check-contrast.sh` passes its list of pairs to `check_contrast.py`. Pairs whose tokens are not defined are skipped. The checker tests both themes. Text pairs need 4.5:1. Non-text UI such as borders and the focus ring needs 3:1. It exits with code 1 if any pair fails or any color cannot be parsed. It also warns about colors outside the sRGB gamut and errors on a `var()` that points to an undefined token.
 
 Two options help with custom work:
 
 ```bash
 # Add a pair for an extra token, such as a secondary accent
-python3 -I scripts/check_contrast.py design-system/tokens.css --pair --color-text-brand --color-surface 4.5
+python3 -I scripts/check_contrast.py <theme-name> --pair --color-text-brand --color-surface 4.5
 
 # Print resolved hex values per theme, for browsers without oklch()
-python3 -I scripts/check_contrast.py design-system/tokens.css --hex
+python3 -I scripts/check_contrast.py <theme-name> --hex
 ```
 
 ## Brand Colors That Fail Contrast
 
-In palette mode, the skill never changes a brand color on its own. When a pairing fails, it reports the failure and proposes the nearest passing alternative, such as a darker or lighter step or a different pairing. The original brand value stays available for logos and decorative use.
+In palette mode, the skill never changes a brand color on its own. When a pairing fails, it reports the failure and proposes the nearest passing alternative, such as a darker or lighter step or a different pairing. The original brand value stays available for logos and decorative use. If the brand color cannot carry a label as a fill on the light surface, the light-mode fill moves to the nearest passing step and the original becomes the dark-mode fill, with the label color flipping between themes.
 
 ## Installing the Skill
 

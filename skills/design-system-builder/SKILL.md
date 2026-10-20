@@ -31,7 +31,7 @@ Edge inputs:
 You need these before building. Take whatever the user already stated and ask for the rest **in a single batch**, never one question at a time:
 
 - Product type and audience (needed for Autonomous; helpful for all modes)
-- Platform: web, native iOS/Android, or both. This decides the output format (§6).
+- Platform: web (Tailwind v4 or plain CSS), native iOS/Android, or both. This decides the output format (§6).
 - Accessibility target. **Default to WCAG 2.2 AA** if unstated.
 - Light only, dark only, or both. **Default to both.**
 - Anything fixed that you must keep: brand colors, fonts, an existing logo.
@@ -40,7 +40,7 @@ If the user says "just do it" or the session cannot be interactive, apply the de
 
 ## 3. Establish and confirm the direction
 
-Produce a **Direction Summary** before writing any tokens. It states, with concrete values: the color roles and brand hues (hex), neutral temperature, typeface choices, type scale ratio, spacing base and density, corner radius, elevation style, motion feel, and overall tone. Say why for each choice. Then **wait for the user to confirm or redirect.** The checkpoint applies to every mode. Skip the wait only if the user has said to proceed without confirming; in that case state the summary and continue.
+Produce a **Direction Summary** before writing any tokens. It starts with a **theme name**: a short, one-word name that fits the direction (e.g. `Ember`), or the name the user gave. The name becomes the output folder (§6). It then states, with concrete values: the color roles and brand hues (hex), neutral temperature, typeface choices, type scale ratio, spacing base and density, corner radius, elevation style, motion feel, and overall tone. Say why for each choice. Then **wait for the user to confirm or redirect.** The checkpoint applies to every mode. Skip the wait only if the user has said to proceed without confirming; in that case state the summary and continue.
 
 Mode-specific rules:
 
@@ -55,6 +55,7 @@ Mode-specific rules:
 **Palette.**
 - Brand colors are fixed inputs. Build tonal scales and semantic roles around them.
 - Check every text/background pairing at the target contrast level (default AA). **Never silently change a brand color.** When a pair fails: report it, propose the nearest passing alternative (a darker or lighter step, or a different pairing), and keep the original brand value available for logos and decorative use.
+- **Brand fails AA as a fill.** When the brand color cannot carry a label at the target contrast on the light surface, move the **light-mode** fill to the nearest step of the same hue that passes, and keep the original brand value as its own pinned primitive. Use the original as the dark-mode fill if it passes there. The `on-*` label then flips with the theme, so state in the docs that a fill is always paired with its `on-*` token. Text in the brand hue gets its own `--color-text-brand` token a step darker than the fill in light mode so it also passes on tinted backgrounds.
 - **Sparse palettes.** With only one brand color, derive the neutrals, the secondary/accent (if needed) and the success/warning/error roles yourself, and mark them as derived in the summary. If the palette has no neutrals or feedback colors, derive those the same way.
 - Match the palette's temperature when deriving neutrals: tint them slightly toward the brand hue.
 
@@ -79,6 +80,9 @@ See [references/tokens.example.css](references/tokens.example.css) for a complet
 - **Scales must be derivable.** Type: a modular ratio (state it). Spacing: a base unit (state it) with deliberate gaps. Color: even lightness steps tuned per hue, not one chroma value for all steps.
 - **Color in OKLCH, in sRGB gamut.** The checker warns on out-of-gamut values. Lower the chroma, or state explicitly that you are targeting Display-P3. Provide hex fallbacks (`check_contrast.py --hex` prints them) when supporting browsers without `oklch()`.
 - **Sizes in `rem`** so user font-size settings and zoom work.
+- **Color roles.** For `primary`, any secondary, and each feedback status (`success`, `warning`, `error`, `info`): `--color-{role}` is the solid fill, `--color-on-{role}` its label, `--color-{role}-subtle` a tinted background, and `--color-{role}-text` the AA-safe text/icon color on surfaces (for the brand, `--color-text-brand`).
+- **Start `tokens.css` with a header comment** covering: the name and version, the three layers, how themes switch, breakpoints (documented there because `var()` cannot be used in `@media`), expected fonts and how to load them, and any brand-contrast decision (which step is the fill in each theme and why).
+- **Density modes (optional).** If the product has dense data UIs (tables, grids, dashboards), add `[data-density="compact" | "comfortable"]` scopes that re-declare row, header and cell-padding tokens. The unmarked setting is the middle one. Touch devices (`pointer: coarse`) still get 44px targets.
 - **Consistent naming**: kebab-case, same word order everywhere. Figma maps by replacing `-` with `/` at role boundaries (`--color-text-primary` ↔ `color/text/primary`).
 
 ### Theming and dark mode
@@ -91,7 +95,14 @@ See [references/tokens.example.css](references/tokens.example.css) for a complet
 
 Pick the inventory from the product. A typical set: Button, Input, Select, Checkbox/Radio/Switch, Card, Badge, Alert/Toast, Modal, Tabs, Tooltip. **Fully specify at least Button, Input, Card and Alert**, and list the rest with their variants and states.
 
-Each spec covers: variants, sizes, states (default, hover, active, focus-visible, disabled, loading, error where applicable), component tokens used, composition rules, accessibility requirements, and a do/don't.
+`components.md` is laid out as:
+
+1. **Intro**: which components are fully specified and which are summarized, and that all of them read component tokens from `tokens.css`.
+2. **Rules that apply to every interactive component**: a table (rule → how it is met) built from the accessibility requirements below, plus any system-specific rule (for example, a brand fill and its label flipping together between themes).
+3. **One section per fully specified component**, in this order: **Variants** table (use, fill, label, edge), **Sizes** table (height token, visual size, padding, font), **States** table (default, hover, active, focus-visible, disabled, loading, error where applicable, with contrast ratios where they matter), **Composition** rules, **markup** for the chosen stack (Tailwind classes or plain CSS), and a **Do / Don't** pair. Separate sections with `---`.
+4. **Product-specific component** (optional, one full section): if the product's core UI is something dense like a data grid, specify it with a parts → tokens table and density table.
+5. **Remaining components**: one table with columns Component, Variants, States, Tokens, Notes.
+6. **Patterns** (optional): how the same tokens apply to marketing or content pages (display type, section spacing, content width).
 
 Accessibility requirements that apply to every interactive component:
 - Visible focus indicator (`:focus-visible`) with ≥3:1 contrast against its surroundings, via a focus-ring token.
@@ -102,34 +113,46 @@ Accessibility requirements that apply to every interactive component:
 
 ## 5. Verify before delivering
 
-1. Run the contrast checker on the generated CSS:
+1. Run the contrast policy script on the design system folder. Run it from the skill folder, or adjust the paths:
    ```
-   python3 -I scripts/check_contrast.py design-system/tokens.css
+   ./scripts/check-contrast.sh <theme-name>
    ```
-   It resolves `var()` chains, checks both themes, tests the standard text/surface, on-color/fill, border and focus-ring pairs (text 4.5:1, non-text UI 3:1), and warns about out-of-gamut colors. Add custom pairs with `--pair FG BG MIN` for any extra tokens (e.g. a secondary accent).
+   It runs `scripts/check_contrast.py`, which resolves `var()` chains, checks both themes, and warns about out-of-gamut colors. The script holds the list of pairs that must pass (text on every surface it can sit on, brand and status text on their tints, on-color/fill, input error border, focus ring on every surface; text 4.5:1, non-text UI 3:1). Pairs whose tokens you did not define are skipped. It prints the result and writes it to `contrast-reports/<theme-name-lowercase>.txt` beside the design system folder. To check extra tokens, call `python3 -I scripts/check_contrast.py <theme-name> --pair FG BG MIN`. A known, documented exception can be passed with `--allow FG BG`; it is reported as KNOWN, not a failure.
 2. Fix every FAIL by adjusting the **derived** tokens or step choice. For Palette-mode brand colors, follow the failure rule in §3 instead of editing the brand value.
 3. Confirm no `var()` references an undefined token (the checker errors on these) and that both themes pass.
-4. Paste the final checker summary into the contrast report deliverable. If you could not run it, say so plainly instead of claiming the pairs pass.
+4. Generate `tokens.json` with `python3 -I scripts/build_tokens_json.py <theme-name>` after the last edit to `tokens.css`.
+5. Check that `preview.html` hard-codes no color, size or font value of its own: everything comes from `tokens.css`.
+6. The report file is the checker's output. If you could not run the scripts, say so plainly instead of claiming the pairs pass.
 
 ## 6. Deliverables and output format
 
-Write files to `design-system/` in the working directory, unless the user names a location:
+Write the design system to `<theme-name>/` (e.g. `Ember/`) in the working directory, unless the user names a location. Use the theme name from the Direction Summary, capitalized, with no spaces. Every design system folder has the same shape:
 
 | File | Contents |
 |---|---|
-| `tokens.css` | All three layers, light and dark themes, accessibility media queries |
-| `components.md` | Component specs (§4) |
-| `README.md` | Direction summary and rationale, token naming guide, usage with do/don't examples, Figma naming map, short versioning notes |
-| `contrast-report.txt` | The checker's output |
+| `tokens.css` | **Source of truth.** All three layers, light and dark themes, density modes if used, accessibility media queries, header comment (§4) |
+| `tokens.json` | W3C DTCG export for Figma (Tokens Studio) and Style Dictionary. Generated by `scripts/build_tokens_json.py`. Never edited by hand |
+| `tailwind-theme.css` | Tailwind v4 preset (web with Tailwind only). See below |
+| `components.md` | Component specs, laid out as in §4 |
+| `README.md` | See below |
+| `preview.html` | Visual reference page: palette, type scale, controls, feedback, the product-specific component, light and dark. Links `tokens.css` and takes every value from it. Has a theme toggle and a density switch if density modes exist. Self-contained apart from fonts |
+
+The contrast report is written outside the folder, to `contrast-reports/<theme-name-lowercase>.txt` next to it, one file per design system.
+
+**`tailwind-theme.css`.** Imports `./tokens.css`, then exposes it in a `@theme inline` block so each utility points at a CSS variable and light/dark switching needs no `dark:` prefixes. It also defines a `dark` custom variant that follows both `[data-theme]` and the OS preference. Rules:
+- Utility names deliberately differ from the CSS variable names (`bg-canvas`, not `bg-surface`), so a theme entry never shadows the variable it reads.
+- It removes Tailwind's default palette (`--color-*: initial`) so only system colors exist; comment that deleting that line restores the defaults.
+- Open with a header comment that is a compact cheat sheet: usage, then one line per utility group (surface, text, border, brand, secondary, status, shape/depth, focus, palette), then the fill/label pairing rule.
+
+**`README.md`** sections, in order: title and one-paragraph summary, Contents (file table), Direction (table: area, choice, why), brand contrast notes with a do/don't table (when the brand color was adjusted), Using it (Tailwind, plain CSS, utility cheat sheet mapping token roles to utilities, distribution), Token architecture (layers diagram and rules), Naming guide (`--{category}-{role}[-{variant}][-{state}]` with examples per category, the color-role pattern, scales), Themes and density, Figma naming map (CSS variable ↔ Figma variable ↔ `tokens.json` path; light/dark are Figma modes, dark aliases live in `$extensions.mode.dark`), Working on the system (how to run the two scripts), Versioning, and What is derived vs given.
 
 Format by platform:
-- **Web (default)**: CSS custom properties.
-- **Tailwind**: also emit a v4 `@theme` block (or a theme config for earlier versions) that maps to the semantic tokens.
-- **Other tooling or multi-platform**: also emit W3C DTCG JSON (`tokens.json`), which Style Dictionary and Figma plugins consume.
-- **Native iOS/Android**: emit the DTCG JSON plus a short mapping to platform primitives (Color/Font assets, `MaterialTheme`). Use dp/pt, not rem. Note that CSS-only pieces (media queries, `color-scheme`) don't apply.
+- **Web with Tailwind (default)**: `tokens.css`, `tailwind-theme.css`, `tokens.json`.
+- **Web without Tailwind**: `tokens.css` and `tokens.json`. Omit `tailwind-theme.css` and show plain-CSS usage in the README.
+- **Native iOS/Android or multi-platform**: `tokens.json` is the main artifact, plus a short mapping to platform primitives (Color/Font assets, `MaterialTheme`) in the README. Use dp/pt, not rem. CSS-only pieces (media queries, `color-scheme`, `preview.html`, `tailwind-theme.css`) do not apply; keep `tokens.css` as the source `tokens.json` is generated from.
 
-Versioning notes (kept to a few lines in the README): semantic versioning for the token set, renaming or removing a token is a major change, and deprecate with a note for one release before removal.
+Versioning notes (kept to a few lines in the README), starting at `0.1.0`: semantic versioning for the token set. Major: renaming or removing a token, or changing its meaning. Minor: adding tokens, components or variants. Patch: value tweaks that keep every contrast pair passing. Deprecate by keeping the old token as an alias with a comment for one minor release, then remove it in the next major. Name the brand colors that never change in a minor or patch release.
 
 ## 7. Reply style
 
-Chat replies stay short: the direction summary, the assumptions you made, the checker result, and the list of files written. The detail lives in the files. Explain the reasoning behind each major choice in a sentence, and flag anything derived or approximated.
+Chat replies stay short: the direction summary, the assumptions you made, the checker result, and the list of files written (the folder and the contrast report). The detail lives in the files. Explain the reasoning behind each major choice in a sentence, and flag anything derived or approximated.

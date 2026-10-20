@@ -1,6 +1,6 @@
 {
   "name": "product-toolkit",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Skills for building new products. Includes a design system builder that turns a brief, screenshots, or a brand palette into design tokens, light and dark themes, component specs, and a WCAG contrast report, a project planner that splits a spec into phases for a coding agent, a doc trimmer that cuts hedging, filler, and repeated ideas from text, files, or URLs, and a doc reviewer that attacks a design doc, spec, or writeup and reports only the holes, ranked by severity.",
   "author": {
     "name": "Vipul Chauhan",

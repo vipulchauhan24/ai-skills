@@ -2,9 +2,11 @@
 """Check WCAG contrast and sRGB gamut for the semantic color tokens in a CSS file.
 
 Usage:
-  check_contrast.py tokens.css
-  check_contrast.py tokens.css --pair --color-text-brand --color-surface 4.5
-  check_contrast.py tokens.css --hex          # print resolved hex per theme (for fallbacks)
+  check_contrast.py <design-system-dir>       # reads <design-system-dir>/tokens.css
+  check_contrast.py Ember --pair --color-text-brand --color-surface 4.5
+  check_contrast.py Ember --hex               # print resolved hex per theme (for fallbacks)
+  check_contrast.py Ember --allow --color-primary --color-surface
+                                              # known, documented exception: reported as KNOWN, not a failure
 
 Themes: "light" = :root declarations; "dark" = light merged with overrides found in
 [data-theme="dark"] blocks or @media (prefers-color-scheme: dark) blocks.
@@ -15,6 +17,7 @@ import argparse
 import math
 import re
 import sys
+from pathlib import Path
 
 # (foreground, background, minimum ratio). Text needs 4.5, non-text UI needs 3.0.
 DEFAULT_PAIRS = [
@@ -179,13 +182,19 @@ def to_hex(rgb):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("css")
+    ap.add_argument("design_system", help="path to the design system folder (contains tokens.css)")
     ap.add_argument("--pair", nargs=3, action="append", metavar=("FG", "BG", "MIN"),
                     help="extra pair, e.g. --pair --color-text-brand --color-surface 4.5")
+    ap.add_argument("--allow", nargs=2, action="append", metavar=("FG", "BG"),
+                    help="a known, documented exception: still reported, but not counted as a failure")
     ap.add_argument("--hex", action="store_true", help="print resolved hex for every color token")
     args = ap.parse_args()
 
-    themes = parse_tokens(open(args.css, encoding="utf-8").read())
+    css = Path(args.design_system) / "tokens.css"
+    if not css.is_file():
+        ap.error(f"{css} not found")
+    themes = parse_tokens(css.read_text(encoding="utf-8"))
+    allowed = {(f, b) for f, b in (args.allow or [])}
     pairs = list(DEFAULT_PAIRS) + [(f, b, float(m)) for f, b, m in (args.pair or [])]
     failures = 0
 
@@ -223,6 +232,8 @@ def main():
                 failures += 1
                 continue
             status = "PASS" if r >= minimum else "FAIL"
+            if status == "FAIL" and (fg, bg) in allowed:
+                status = "KNOWN"
             failures += status == "FAIL"
             print(f"  {status}  {fg} on {bg}: {r:.2f}:1 (need {minimum})")
 

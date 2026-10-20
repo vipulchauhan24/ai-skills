@@ -82,7 +82,7 @@ ChatGPT, Gemini web, or a raw OpenAI or Gemini API call have no skills loader, s
 
 ### What to expect outside Claude Code
 
-- design-system-builder ends by running `python3 -I scripts/check_contrast.py design-system/tokens.css`. This needs an agent with shell access and Python. In a plain chat, run the script yourself on the generated `tokens.css`, or the contrast check is skipped.
+- design-system-builder ends by running `./scripts/check-contrast.sh <theme-name>` and `python3 -I scripts/build_tokens_json.py <theme-name>`. This needs an agent with shell access and Python. In a plain chat, run the scripts yourself on the generated folder, or the contrast check is skipped and `tokens.json` is not generated.
 - doc-trimmer fetches URLs with `curl` and writes the `-cut` file, so both need an agent with shell and file access. In a plain chat, paste the text and copy the result yourself.
 - doc-reviewer fetches URLs with `curl` and reads files, so it needs an agent with shell and file access for those inputs. In a plain chat, paste the document text.
 - Screenshot mode needs a model that accepts image input.
