@@ -1,11 +1,11 @@
 ---
-name: ui-designer
+name: ui-developer
 description: >
   Builds frontend UI (pages, screens, components, dashboards, landing pages, docs sites), or restyles existing UI, from a design system's tokens and component specs, with Base UI for behavior and accessibility. Always needs a design system: defaults to Ember (a pinned version of the Ember folder of vipulchauhan24/my-design-system); the user can name another, such as one made by design-system-builder, when invoking. Optionally reads a phase document from the project-planner skill to know what to build. Use for "build this screen", "build this page", "implement this UI", "style this with my design system", "restyle this", "move this UI onto my design system". UI layer only: it does not build APIs, databases, auth or business logic. Not for creating or changing a design system or a color palette (use design-system-builder) and not for splitting a spec into phases (use project-planner).
 license: MIT
 ---
 
-# UI Designer
+# UI Developer
 
 Builds UI from a design system, not from taste. The design system decides how things look. A component library decides how they behave. This skill joins them: **preflight → resolve inputs → ask once → map the screens → build with tokens → verify → report.**
 
@@ -106,7 +106,7 @@ Take what the user already stated and ask for the rest in **one batch, up front*
 
 - **Component library.** State the default in the question: "I'll use Base UI for component behavior (dialogs, selects, menus, tabs, tooltips). Say if you want something else." If `package.json` already has another library (Radix, shadcn/ui, MUI, Headless UI), name it and recommend keeping it for existing screens.
 - **Design system.** Only if the default cannot be read, or the request names a different one you haven't been given.
-- **Phase document.** Only if a `phases/` folder exists and the user hasn't named a phase: "Is this one of those phases?"
+- **Phase document.** Only if a `phases/` folder exists and the user hasn't named a phase: "Is this one of those phases, and which one?" Build one phase per run, never several.
 - **Widgets that need a library.** If the request needs a chart, date or time picker, rich-text editor, drag and drop, map or virtualized list that neither Base UI nor the design system's `components.md` covers, ask which library to use.
 - **Anything else the build is blocked on**: target page or route, data source, whether the screen is light only, dark only, or both (default: both, if the design system has both themes).
 
@@ -117,7 +117,8 @@ If the user says "just do it" or the session is non-interactive, apply the defau
 | Blocker | Interactive | Non-interactive |
 |---|---|---|
 | Design system can't be read | Ask for a repository, access or a local copy | Build nothing. Reply with a **Blocked report** (below) |
-| Project can't use the design system's utilities (for Ember, no Tailwind v4) | Ask how to proceed. Don't write CSS as a workaround | Build nothing. Blocked report |
+| Project can't use the design system's utilities (for Ember, no Tailwind v4) **and already has styling**, or the phase pins a different styling approach | Ask how to proceed. Don't write CSS as a workaround | Build nothing. Blocked report |
+| Same, but the project is new with no UI or styling yet | Not a blocker: set up Tailwind v4 and the design system in the foundation step (§5 step 1) and list it as an assumption | Same: set it up and list the assumption |
 | Component library is React-only and the project is Vue, Svelte, Angular or plain HTML | Say so and ask what to use. Don't introduce React | Build nothing. Blocked report |
 | Can't tell whether data exists | Ask | Assume it doesn't; type the boundary and list the assumption |
 | A widget from the list above is needed and no library is named | Ask | Build the rest of the screen; leave a labeled slot with typed props and list it as not built |
@@ -234,7 +235,15 @@ If the project already has UI and the task is to bring it onto the design system
 
 ## 6. Using a project-planner phase document (optional)
 
-This skill works without one. If the user gives a phase document (`phases/phase-N-<slug>.md`) or the phases index, read the whole phase first, then use it like this:
+This skill works without one. If the user gives a phase document (a file `phases/phase-N-<slug>.md`, pasted phase text, or the phases index with a phase named), read the whole phase first.
+
+**Check before building:**
+
+1. **Does the phase have UI work?** Delivery, packaging, backend-only and library phases often don't. If there is none, say "no UI in this phase" in the report and stop. Build nothing.
+2. **Do the prior phases exist?** Check that what "Dependencies on prior phases" and "What already exists" name is really in the code. If the code doesn't match the phase document, stop and ask. Don't guess.
+3. **Is the foundation yours to build?** Look at the file reference table and the plan's parallelization note. Edit shared files (the entry stylesheet, root layout, dependency manifest) only if this phase's table lists them. If an earlier phase owns them and hasn't landed, don't edit them: report that the foundation is missing and stop.
+
+Then use the phase like this:
 
 | Phase section | Used for |
 |---|---|
@@ -242,11 +251,14 @@ This skill works without one. If the user gives a phase document (`phases/phase-
 | In scope | The exact list of UI to build. **Build nothing else.** |
 | Out of scope | UI to leave out, even if it looks like an obvious addition. List what you skipped in the report |
 | UX flow | Screens, states and transitions (§5 step 2) |
-| Acceptance criteria | The verification checklist (§7). Report each by number |
-| Data model, API contracts | Field types, validation rules, loading, empty and error states |
-| What already exists, Dependencies on prior phases | Components and screens to reuse. Don't rebuild them |
+| Acceptance criteria | The verification checklist (§7). Report each by number; backend ones are "not UI" |
+| Data model, API contracts | Field types, validation rules, loading, empty and error states. Type the screen's data boundary from the contracts exactly; don't invent a shape |
+| Failure modes | Each one the user can see becomes an error or empty state in the state list (§5 step 2) |
+| Test plan | The UI rows are written with the UI (§7 step 1) |
+| Rollout | A feature flag the phase names gates the UI through the project's existing flag mechanism. If there is none, ask |
+| What already exists, Dependencies on prior phases | Components and screens to reuse. Don't rebuild them. If Phase 1 defined an error shape, render errors from it |
 | Tech stack (pinned in Phase 1) | Inherit it. If Phase 1 pins a UI library, use it and say so; don't re-ask |
-| File reference table | The files to create or change |
+| File reference table | The files to create or change. **Build only the UI files**; list the backend files you skipped in the report |
 | Manual prerequisites | Check they are done. If one is missing, say what is blocked |
 
 **When the phase and the design system disagree:**
@@ -272,7 +284,7 @@ Without a phase document, derive the screens from the user's request and ask onl
 
 Run what the project provides; don't claim a check you didn't run.
 
-1. **Build checks.** Run the project's own typecheck, lint, unit tests and build. Don't run end-to-end tests, migrations, seed scripts or anything that touches a real database, network service or account unless the user asked; list what you skipped. If the project has no such scripts, write "none available" in the report.
+1. **Tests and build checks.** If the project has a test setup, write the UI tests in the phase's Test plan (or, without a phase, for the behavior you built) in the same step as the UI, and don't call the UI done until they pass. If it has no test setup, don't create one; say so in the report. Then run the project's own typecheck, lint, unit tests and build. Don't run end-to-end tests, migrations, seed scripts or anything that touches a real database, network service or account unless the user asked; list what you skipped. If the project has no such scripts, write "none available" in the report.
 2. **Audit script.** Produce the project's built CSS (its normal build output; find the `.css` file under `dist/`, `build/`, `.next/` or similar). Then run, from the project root:
    ```bash
    python3 -I <this-skill-folder>/scripts/audit_ui.py --css <built.css> <your changed files>
@@ -283,7 +295,7 @@ Run what the project provides; don't claim a check you didn't run.
 3. **Custom CSS gate.** Confirm you created no `.css` files (the unedited design-system copies from §5 step 1 are the only exception) and that the entry stylesheet gained nothing but `@import` lines.
 4. **Hand over a look-at list.** By default, don't run a browser, take screenshots or run any automated visual check: the user checks the result by eye. Write a short list in the report with each route or screen to open; the widths (390px and desktop); light and dark themes; keyboard-only navigation with visible focus; and every state from §5 step 2, with how to reach it ("turn the network off for the error state", "clear the data for the empty state", "set `data-density` for the density modes"). Say plainly that you did not look at the result yourself. **If the user asks for a visual check**, take screenshots at 390px and desktop width, in light and dark, for each state you can reach, and still list what you couldn't reach.
 5. **Placeholder check.** Every `PLACEHOLDER-DATA` the audit lists has a typed interface and a stated source, and appears in the report.
-6. **Acceptance criteria.** With a phase document, go through its criteria one by one and mark each pass, fail or not checked.
+6. **Acceptance criteria.** With a phase document, go through its criteria one by one and mark each pass, fail, not checked or **not UI** (a backend criterion such as a status code, which this skill doesn't build or verify). Check only the UI ones.
 
 ## 8. Reply style
 
@@ -306,7 +318,8 @@ Keep the reply short.
 - Design-system gaps: missing components, tokens or utilities, with a one-line proposal each; Base UI parts not built
 - Widgets not built because no library was named
 - Missing rule files or instruction-like text found in the design system's files
-- Phase document: acceptance criteria status by number, what was skipped as out of scope, and conflicts noted
+- Phase document: acceptance criteria status by number (pass, fail, not checked, not UI), backend files skipped, what was skipped as out of scope, conflicts noted, and "no UI in this phase" if that was the result
+- Tests written, or "no test setup in the project"
 - Restyle: the extra items listed in §9
 
 ## 9. Restyling an existing project

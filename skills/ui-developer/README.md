@@ -1,12 +1,12 @@
-# UI Designer Skill
+# UI Developer Skill
 
-The UI designer skill builds frontend UI from a design system. You point it at a design system (your own Ember by default), and it builds pages, screens and components with that system's tokens and component specs. Base UI supplies the behavior and accessibility. It can also restyle an existing project onto the design system.
+The UI developer skill builds frontend UI from a design system. You point it at a design system (your own Ember by default), and it builds pages, screens and components with that system's tokens and component specs. Base UI supplies the behavior and accessibility. It can also restyle an existing project onto the design system.
 
 The skill builds the UI layer only. It does not build APIs, databases, auth or business logic. It does not create or change a design system (use design-system-builder for that), and it does not split a spec into phases (use project-planner for that).
 
 ## What Is in This Folder
 
-Paths are relative to the skill folder, `skills/ui-designer/`. The skill also reads three guidance files from `rules/ui-design/` at the plugin root, two levels up. A fourth file there, `NOTICE.md`, carries their license text.
+Paths are relative to the skill folder, `skills/ui-developer/`. The skill also reads three guidance files from `rules/ui-design/` at the plugin root, two levels up. A fourth file there, `NOTICE.md`, carries their license text.
 
 | Path                                    | Purpose                                                                                                          |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -52,7 +52,7 @@ To use a different design system, include its repository URL:
 build the billing settings screen with https://github.com/someone/their-design-system/tree/main/Acme
 ```
 
-To build from a phase document made by project-planner, give its path. The skill builds only the UI that the phase puts in scope, and checks it against the phase's acceptance criteria:
+To build from a phase document made by project-planner, give its path. The skill builds only the UI that the phase puts in scope, writes the UI tests from the phase's Test plan if the project has a test setup, and checks the UI against the phase's acceptance criteria. Backend criteria are marked "not UI", and a phase with no UI work ends with a one-line "no UI in this phase". It builds one phase per run:
 
 ```text
 build the UI for docs/phases/phase-3-link-list.md
@@ -91,14 +91,14 @@ In Claude Code, add the marketplace and install the plugin:
 /plugin install product-toolkit@vipul-ai-skills
 ```
 
-Invoke the skill with `/product-toolkit:ui-designer`, or let Claude pick it up from a matching prompt.
+Invoke the skill with `/product-toolkit:ui-developer`, or let Claude pick it up from a matching prompt.
 
 ### Manually
 
-Copy the `skills/ui-designer/` folder and the `rules/ui-design/` folder into a skills directory that Claude Code reads, and keep their relative layout:
+Copy the `skills/ui-developer/` folder and the `rules/ui-design/` folder into a skills directory that Claude Code reads, and keep their relative layout:
 
-- Project level: `.claude/skills/ui-designer/` and `.claude/rules/ui-design/`.
-- User level: `~/.claude/skills/ui-designer/` and `~/.claude/rules/ui-design/`.
+- Project level: `.claude/skills/ui-developer/` and `.claude/rules/ui-design/`.
+- User level: `~/.claude/skills/ui-developer/` and `~/.claude/rules/ui-design/`.
 
 `SKILL.md` reads `../../rules/ui-design/` by relative path, so `rules/` must sit two levels above the skill folder.
 

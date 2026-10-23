@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit UI files written by the ui-designer skill.
+"""Audit UI files written by the ui-developer skill.
 
 Usage:  python3 -I audit_ui.py [--css BUILT.css] FILE [FILE ...]
 
